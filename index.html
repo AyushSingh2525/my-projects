@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartQueue Pro | Live Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-layer-group text-xl"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tight">SmartQueue <span class="text-indigo-400">Pro</span></span>
+            </div>
+            <a href="/admin" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl border border-slate-700 transition flex items-center gap-2">
+                <i class="fa-solid fa-user-shield text-indigo-400"></i> Counter Desk
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left: Digital Ticket Kiosk Form -->
+        <div class="lg:col-span-5 bg-slate-900/60 border border-slate-800 rounded-3xl p-6 backdrop-blur shadow-2xl flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-ticket text-indigo-400"></i> Virtual Ticket Kiosk
+                    </h2>
+                    <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-medium">
+                        Instant Ticket
+                    </span>
+                </div>
+
+                <form id="kiosk-form" onsubmit="generateTicket(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Full Name</label>
+                        <input type="text" id="cust-name" placeholder="Enter your name" required
+                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Phone Number (Optional for WhatsApp updates)</label>
+                        <input type="tel" id="cust-phone" placeholder="e.g. 919876543210"
+                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Service Required</label>
+                        <select id="service-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+                            <option value="General Inquiry">General Inquiry</option>
+                            <option value="Billing & Payments">Billing & Payments</option>
+                            <option value="Technical Support">Technical Support</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-qrcode"></i> Get Digital Ticket
+                    </button>
+                </form>
+            </div>
+
+            <!-- Ticket Generated Modal Card -->
+            <div id="ticket-modal" class="hidden mt-6 bg-slate-950 border border-indigo-500/40 rounded-2xl p-5 text-center relative animate-fade-in">
+                <span class="text-[10px] uppercase tracking-widest text-indigo-400 font-bold">Your Digital Pass</span>
+                <div id="modal-token" class="text-4xl font-black text-white my-2">---</div>
+                <p id="modal-wait" class="text-xs text-amber-400 font-medium">Estimated Wait: -- mins</p>
+
+                <div class="flex justify-center my-4 p-3 bg-white rounded-xl w-fit mx-auto shadow-md" id="qrcode"></div>
+                
+                <a id="wa-btn" href="#" target="_blank" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> Send Ticket to WhatsApp
+                </a>
+            </div>
+        </div>
+
+        <!-- Right: Live Display Screen -->
+        <div class="lg:col-span-7 space-y-6">
+            <!-- Top Status Counters -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-indigo-950/30 border border-indigo-500/20 rounded-2xl p-5 text-center">
+                    <p class="text-xs text-indigo-300 font-semibold uppercase tracking-wider">Now Serving</p>
+                    <p id="now-serving" class="text-4xl font-black text-indigo-400 mt-2">--</p>
+                </div>
+                <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 text-center">
+                    <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">In Queue</p>
+                    <p id="waiting-count" class="text-4xl font-black text-amber-400 mt-2">0</p>
+                </div>
+                <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-5 text-center">
+                    <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Avg Customer Rating</p>
+                    <p id="rating-score" class="text-4xl font-black text-emerald-400 mt-2">5.0 ★</p>
+                </div>
+            </div>
+
+            <!-- Active Token Card -->
+            <div class="bg-slate-900/40 border border-slate-800 rounded-3xl p-8 text-center relative">
+                <span class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Current Desk Token</span>
+                <div id="token-num" class="text-7xl font-black text-white my-4 tracking-tight">---</div>
+                <p id="cust-display" class="text-slate-300 font-medium text-lg">Waiting for Next Call...</p>
+            </div>
+
+            <!-- Feedback Modal Trigger Button -->
+            <div class="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-5 flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-white">Service Completed?</h3>
+                    <p class="text-xs text-slate-400">Leave instant rating for counter service.</p>
+                </div>
+                <button onclick="openFeedbackModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center gap-2">
+                    <i class="fa-solid fa-star"></i> Rate Experience
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-md text-center">
+            <h3 class="text-lg font-bold text-white">Rate Service Quality</h3>
+            <p class="text-xs text-slate-400 mt-1">Select rating stars below</p>
+
+            <div class="flex justify-center space-x-2 my-6 text-3xl text-slate-700 cursor-pointer" id="star-rating">
+                <i class="fa-solid fa-star hover:text-amber-400 transition" onclick="setRating(1)"></i>
+                <i class="fa-solid fa-star hover:text-amber-400 transition" onclick="setRating(2)"></i>
+                <i class="fa-solid fa-star hover:text-amber-400 transition" onclick="setRating(3)"></i>
+                <i class="fa-solid fa-star hover:text-amber-400 transition" onclick="setRating(4)"></i>
+                <i class="fa-solid fa-star hover:text-amber-400 transition" onclick="setRating(5)"></i>
+            </div>
+
+            <textarea id="feedback-text" placeholder="Optional comments..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none mb-4"></textarea>
+
+            <div class="flex gap-2">
+                <button onclick="closeFeedbackModal()" class="w-1/2 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-xs font-semibold">Cancel</button>
+                <button onclick="submitFeedback()" class="w-1/2 bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-semibold">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let currentRating = 5;
+
+    async function generateTicket(e) {
+        e.preventDefault(); // Page reload hone se rokta hai
+        
+        const name = document.getElementById('cust-name').value;
+        const phone = document.getElementById('cust-phone').value;
+        const service = document.getElementById('service-type').value;
+
+        try {
+            const res = await fetch('/api/tokens', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customer_name: name, customer_phone: phone, service_type: service })
+            });
+
+            const result = await res.json();
+            
+            if (result.success) {
+                const data = result.data;
+                
+                // Modal Window Dikhayein
+                const modal = document.getElementById('ticket-modal');
+                modal.classList.remove('hidden');
+                
+                document.getElementById('modal-token').innerText = data.token_number;
+                document.getElementById('modal-wait').innerText = `Estimated Wait: ${data.estimated_wait_minutes} mins (${data.people_ahead} ahead)`;
+
+                // QR Code Clear and Generate
+                const qrContainer = document.getElementById('qrcode');
+                qrContainer.innerHTML = ""; 
+                
+                new QRCode(qrContainer, {
+                    text: `Token: ${data.token_number} | Service: ${data.service_type}`,
+                    width: 120,
+                    height: 120
+                });
+
+                // WhatsApp Button Show/Hide
+                const waBtn = document.getElementById('wa-btn');
+                if (data.whatsapp_url) {
+                    waBtn.href = data.whatsapp_url;
+                    waBtn.classList.remove('hidden');
+                } else {
+                    waBtn.classList.add('hidden');
+                }
+
+                // Form reset aur live update
+                document.getElementById('kiosk-form').reset();
+                fetchQueueStatus();
+            } else {
+                alert("Error: " + (result.error || "Could not generate ticket"));
+            }
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            alert("Server se connect nahi ho paya. Make sure app.py is running!");
+        }
+    }
+
+    async function fetchQueueStatus() {
+        try {
+            const res = await fetch('/api/queue-status');
+            const result = await res.json();
+            if (!result.success) return;
+
+            const data = result.data;
+            document.getElementById('waiting-count').innerText = data.waiting_count;
+            document.getElementById('rating-score').innerText = `${data.avg_rating} ★`;
+
+            if (data.serving_token) {
+                document.getElementById('now-serving').innerText = data.serving_token.token_number;
+                document.getElementById('token-num').innerText = data.serving_token.token_number;
+                document.getElementById('cust-display').innerText = `${data.serving_token.customer_name} (${data.serving_token.service_type})`;
+            } else {
+                document.getElementById('now-serving').innerText = "None";
+                document.getElementById('token-num').innerText = "---";
+                document.getElementById('cust-display').innerText = "Waiting for next call...";
+            }
+        } catch (e) {
+            console.error("Sync error:", e);
+        }
+    }
+
+    function openFeedbackModal() { document.getElementById('feedback-modal').classList.remove('hidden'); }
+    function closeFeedbackModal() { document.getElementById('feedback-modal').classList.add('hidden'); }
+    function setRating(r) { currentRating = r; }
+
+    async function submitFeedback() {
+        const text = document.getElementById('feedback-text').value;
+        await fetch('/api/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token_id: 1, rating: currentRating, feedback_text: text })
+        });
+        closeFeedbackModal();
+        fetchQueueStatus();
+    }
+
+    // Auto-refresh every 3 seconds
+    setInterval(fetchQueueStatus, 3000);
+    fetchQueueStatus();
+</script>
+</body>
+</html>

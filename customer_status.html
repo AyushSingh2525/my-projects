@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card center-text">
+    <div id="connectionStatus" class="connection-indicator disconnected">Connecting...</div>
+    
+    <h2>Live Token Tracker</h2>
+    <h1 id="tokenDisplay" class="token-large">---</h1>
+    
+    <div class="details-grid">
+        <p>Customer: <strong id="customerName">---</strong></p>
+        <p>Service: <strong id="serviceType">---</strong></p>
+    </div>
+
+    <div class="status-box">
+        <p>Status: <span id="tokenStatus" class="badge">Updating...</span></p>
+        <p>People Ahead: <strong id="tokensAhead" class="metric-highlight">-</strong></p>
+        <p>Currently Serving: <strong id="currentServing" class="metric-highlight">-</strong></p>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/customer.js') }}"></script>
+<script>
+    // Initialize customer tracker with server-injected token_id
+    initCustomerTracker({ token_id });
+</script>
+{% endblock %}

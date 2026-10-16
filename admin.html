@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartQueue Pro | Admin Desk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
+
+    <div class="max-w-xl mx-auto px-6 py-12">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl text-center">
+            <span class="px-3.5 py-1.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-xs font-semibold">
+                Counter Desk #01
+            </span>
+            <h1 class="text-2xl font-bold mt-4 text-white">Queue Control Console</h1>
+            
+            <div class="my-8 py-8 bg-slate-950/80 rounded-2xl border border-slate-800">
+                <p class="text-xs text-slate-400 uppercase tracking-widest font-bold">Currently Serving</p>
+                <div id="current-serving-admin" class="text-6xl font-black text-emerald-400 mt-2">--</div>
+            </div>
+
+            <!-- Call Next Action Button -->
+            <button onclick="callNextToken()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-emerald-600/20 text-lg flex items-center justify-center gap-2">
+                <i class="fa-solid fa-bullhorn"></i> Call Next Customer
+            </button>
+
+            <!-- Language Announcement Switch -->
+            <div class="mt-6 flex justify-center items-center gap-3">
+                <label class="text-xs text-slate-400">Voice Language:</label>
+                <select id="voice-lang" class="bg-slate-950 border border-slate-800 rounded-lg text-xs px-3 py-1.5 text-white">
+                    <option value="hi-IN">Hindi Voice</option>
+                    <option value="en-US">English Voice</option>
+                </select>
+            </div>
+
+            <p id="admin-msg" class="text-xs text-slate-400 mt-4 min-h-[1rem]"></p>
+        </div>
+    </div>
+
+    <script>
+        // AI Text to Speech Voice Engine
+        function announceToken(tokenNumber, language) {
+            if ('speechSynthesis' in window) {
+                let text = language === 'hi-IN' 
+                    ? `टोकन नंबर ${tokenNumber}, कृपया काउंटर नंबर एक पर पधारें`
+                    : `Token number ${tokenNumber}, please proceed to counter number 1`;
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = language;
+                utterance.rate = 0.9; // Slightly slower for crisp clarity
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        async function callNextToken() {
+            const msgEl = document.getElementById('admin-msg');
+            const lang = document.getElementById('voice-lang').value;
+            msgEl.innerText = "Calling next token...";
+
+            try {
+                const res = await fetch('/api/tokens/next', { method: 'POST' });
+                const result = await res.json();
+                
+                if(result.success) {
+                    const token = result.data.token_number;
+                    document.getElementById('current-serving-admin').innerText = token;
+                    msgEl.innerText = `Calling Token ${token}`;
+                    msgEl.className = "text-xs text-emerald-400 mt-4";
+
+                    // Trigger Voice Announcement
+                    announceToken(token, lang);
+                } else {
+                    msgEl.innerText = result.message || "No tokens in queue";
+                    msgEl.className = "text-xs text-amber-400 mt-4";
+                }
+            } catch(e) {
+                msgEl.innerText = "Error connecting to server";
+                msgEl.className = "text-xs text-red-400 mt-4";
+            }
+        }
+    </script>
+</body>
+</html>

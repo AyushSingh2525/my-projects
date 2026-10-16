@@ -1,0 +1,118 @@
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+body { 
+    font-family: -apple-system,
+    BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif; 
+    background: #f0f2f5; color: #1c1e21; 
+}
+
+.navbar { 
+    background: #1a252f; 
+    color: white; padding: 15px 30px; 
+    display: flex; justify-content: space-between; 
+    align-items: center; 
+}
+
+.navbar a { color: #ecf0f1; 
+    margin-left: 20px; 
+    text-decoration: none; 
+    font-weight: 500; 
+}
+
+.navbar a:hover { 
+    color: #3498db; 
+}
+
+.container { 
+    max-width: 1100px; 
+    margin: 30px auto; 
+    padding: 0 15px; 
+}
+
+.card { 
+    background: white; 
+    padding: 30px; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+    margin-bottom: 20px; position: relative; 
+}
+
+.center-text { 
+    text-align: center; 
+}
+
+.token-large { 
+    font-size: 64px; 
+    color: #2c3e50; 
+    font-weight: 800; 
+    margin: 15px 0; 
+    letter-spacing: -1px; 
+}
+
+.metric-highlight { 
+    font-size: 20px; 
+    color: #2980b9; 
+}
+
+.details-grid { 
+    display: flex; 
+    justify-content: center;
+    gap: 30px; 
+    margin-bottom: 20px; 
+    color: #555; 
+}
+
+.status-box { 
+    background: #f8f9fa; 
+    border: 1px solid #e9ecef; 
+    padding: 20px; 
+    border-radius: 8px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+}
+
+/* Connection Status Indicator */
+.connection-indicator { 
+    position: absolute; 
+    top: 15px; right: 20px; 
+    font-size: 12px; 
+    font-weight: 600; 
+    padding: 4px 10px; 
+    border-radius: 12px; 
+}
+
+.connection-indicator.connected { 
+    background: #e8f8f0; 
+    color: #27ae60; 
+}
+
+.connection-indicator.disconnected { 
+    background: #fdedec; 
+    color: #e74c3c; 
+}
+
+/* Badges */
+.badge { padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; display: inline-block; }
+.badge-serving { background: #fef9e7; color: #d68910; border: 1px solid #f9e79f; }
+.badge-waiting { background: #ebf5fb; color: #2980b9; border: 1px solid #aed6f1; }
+.badge-completed { background: #e8f8f0; color: #27ae60; border: 1px solid #a9dfbf; }
+
+/* Dashboard Grid Layout */
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+.data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+.data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+.data-table th { background: #f8f9fa; font-weight: 600; }
+
+.btn { background: #3498db; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+.btn:hover { background: #2980b9; }
+.btn-success { background: #2ecc71; }
+.btn-success:hover { background: #27ae60; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
